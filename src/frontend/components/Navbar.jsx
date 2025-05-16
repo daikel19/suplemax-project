@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, User, Search } from 'lucide-react';
 
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+
 export default function Navbar() {
   return (
     <header className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
@@ -33,10 +35,27 @@ export default function Navbar() {
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-500" />
           </div>
 
-          {/* User Icon */}
-          <button className="p-2 hover:bg-gray-100 rounded-full">
-            <User className="w-5 h-5" />
-          </button>
+          {/* Usuario logueado */}
+          {usuario ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Hola, {usuario.nombre}</span>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("usuario");
+                  window.location.reload(); // recarga la página tras logout
+                }}
+                className="text-xs underline text-gray-500 hover:text-black"
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          ) : (
+            <Link to="/auth/login">
+              <User className="w-5 h-5" />
+            </Link>
+          )}
+
+
 
           {/* Cart Icon */}
           <button className="relative p-2 hover:bg-gray-100 rounded-full">

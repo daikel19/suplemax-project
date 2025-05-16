@@ -1,23 +1,41 @@
 <?php
-require_once("conexion.php");
+require_once 'conexion.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST["email"];
-    $contraseña = $_POST["contraseña"];
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: *");
+header("Content-Type: application/json");
+
+$data = json_decode(file_get_contents("php://input"));
+
+if (isset($data->email) && isset($data->password)) {
+    $email = $data->email;
+    $password = $data->password;
 
     try {
-        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :email");
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($contraseña, $user["contraseña"])) {
-            setcookie("user_id", $user["id"], time() + 3600, "/");
-            echo json_encode(["success" => true, "message" => "Login exitoso"]);
+        if ($usuario && password_verify($password, $usuario['contraseña'])) {
+            echo json_encode([
+                "success" => true,
+                "usuario" => [
+                    "id" => $usuario["id"],
+                    "nombre" => $usuario["nombre"],
+                    "email" => $usuario["email"],
+                    "rol" => $usuario["rol"]
+                ]
+            ]);
         } else {
             echo json_encode(["success" => false, "message" => "Credenciales inválidas"]);
         }
+
     } catch (PDOException $e) {
-        echo json_encode(["success" => false, "error" => $e->getMessage()]);
+        echo json_encode(["success" => false, "message" => "Error de conexión: " . $e->getMessage()]);
     }
+
+} else {
+    echo json_encode(["success" => false, "message" => "Faltan datos"]);
 }
 ?>
