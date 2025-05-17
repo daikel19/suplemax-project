@@ -5,6 +5,8 @@ import App from "./App";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import "./index.css";
+import UserProfile from "./pages/UserProfile";
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -16,6 +18,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         {/* Rutas para login y registro cuando se hace clic en el icono */}
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
+        <Route path="/perfil" element={<UserProfile />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

@@ -11,20 +11,24 @@ export default function LoginForm() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // 👈 evitar que el navegador haga submit normal
+    e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost/suplemax-project/src/backend/login.php', {
+      const response = await fetch('http://localhost:3000/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json', // 👈 asegúrate que va como JSON
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData), // 👈 convierte tu objeto a JSON
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
-      console.log(data);
-      alert(data.message);
+      if (data.success) {
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+        window.location.href = '/';
+      } else {
+        alert(data.message);
+      }
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
     }
@@ -32,20 +36,8 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="Correo"
-      />
-      <input
-        type="password"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        placeholder="Contraseña"
-      />
+      <input name="email" type="email" placeholder="Correo" onChange={handleChange} required />
+      <input name="password" type="password" placeholder="Contraseña" onChange={handleChange} required />
       <button type="submit">Iniciar sesión</button>
     </form>
   );

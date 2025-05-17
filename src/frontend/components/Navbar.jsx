@@ -1,70 +1,77 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, User, Search } from 'lucide-react';
 
-const usuario = JSON.parse(localStorage.getItem("usuario"));
-
 export default function Navbar() {
+  const [usuario, setUsuario] = useState(null);
+  const [menuAbierto, setMenuAbierto] = useState(false);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("usuario");
+    if (storedUser) {
+      try {
+        setUsuario(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Error al parsear usuario:", e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("usuario");
+    setUsuario(null);
+    window.location.href = '/';
+  };
+
   return (
-    <header className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="text-2xl font-extrabold tracking-widest">
-          SUPLEMAX
+    <header className="w-full bg-white text-black shadow-md">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        <Link to="/" className="text-xl font-bold uppercase tracking-wide">
+          Suplemax
         </Link>
 
-        {/* Menu */}
-        <nav className="hidden md:flex space-x-6 text-sm font-medium">
-          <Link to="/proteinas" className="hover:text-gray-700 transition-colors">Proteínas</Link>
-          <Link to="/vitaminas" className="hover:text-gray-700 transition-colors">Vitaminas</Link>
-          <Link to="/rendimiento" className="hover:text-gray-700 transition-colors">Rendimiento</Link>
-          <Link to="/alimentacion" className="hover:text-gray-700 transition-colors">Comida y Snacks</Link>
-          <Link to="/ropa" className="hover:text-gray-700 transition-colors">Ropa y Accesorios</Link>
-          <Link to="/quienes-somos" className="hover:text-gray-700 transition-colors">Nosotros</Link>
-        </nav>
+        <nav className="flex items-center gap-6">
+          <Link to="/productos" className="hover:text-gray-600">Productos</Link>
+          <Link to="/categorias" className="hover:text-gray-600">Categorías</Link>
+          <Link to="/contacto" className="hover:text-gray-600">Contacto</Link>
+          <Link to="/busqueda" className="hover:text-gray-600">
+            <Search className="w-5 h-5" />
+          </Link>
 
-        {/* Icons */}
-        <div className="flex items-center space-x-4">
-          {/* Search */}
-          <div className="relative hidden sm:block">
-            <input
-              type="text"
-              placeholder="Buscar..."
-              className="pl-10 pr-4 py-1 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-black"
-            />
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-500" />
-          </div>
+          <Link to="/carrito" className="hover:text-gray-600">
+            <ShoppingCart className="w-5 h-5" />
+          </Link>
 
-          {/* Usuario logueado */}
           {usuario ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Hola, {usuario.nombre}</span>
+            <div className="relative group">
               <button
-                onClick={() => {
-                  localStorage.removeItem("usuario");
-                  window.location.reload(); // recarga la página tras logout
-                }}
-                className="text-xs underline text-gray-500 hover:text-black"
+                onClick={() => setMenuAbierto(!menuAbierto)}
+                className="flex items-center gap-1 text-sm font-medium focus:outline-none"
               >
-                Cerrar sesión
+                <User className="w-5 h-5" />
+                <span>{usuario.nombre || usuario.email}</span>
               </button>
+
+              {menuAbierto && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-10">
+                  <div className="px-4 py-2 border-b text-sm text-gray-700">{usuario.email}</div>
+                  <Link to="/perfil" className="block px-4 py-2 hover:bg-gray-100 text-sm">Perfil</Link>
+                  <Link to="/configuracion" className="block px-4 py-2 hover:bg-gray-100 text-sm">Configuración</Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
+                  >
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
-            <Link to="/auth/login">
+            <Link to="/auth/login" className="hover:text-gray-600">
               <User className="w-5 h-5" />
             </Link>
           )}
-
-
-
-          {/* Cart Icon */}
-          <button className="relative p-2 hover:bg-gray-100 rounded-full">
-            <ShoppingCart className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              0
-            </span>
-          </button>
-        </div>
+        </nav>
       </div>
     </header>
   );
