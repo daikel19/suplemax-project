@@ -2,40 +2,53 @@
 require_once 'conexion.php';
 
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
+header("Access-Control-Allow-Headers: Content-Type, Accept");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json");
 
-$data = json_decode(file_get_contents("php://input"));
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
-if (isset($data->email) && isset($data->password)) {
-    $email = $data->email;
-    $password = $data->password;
+$email = $_POST['email'] ?? '';
+$password = $_POST['password'] ?? '';
 
-    try {
-        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :email");
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+if (!$email || !$password) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Faltan datos'
+    ]);
+    exit();
+}
 
-        if ($usuario && password_verify($password, $usuario['contraseña'])) {
-            echo json_encode([
-                "success" => true,
-                "usuario" => [
-                    "id" => $usuario["id"],
-                    "nombre" => $usuario["nombre"],
-                    "email" => $usuario["email"],
-                    "rol" => $usuario["rol"]
-                ]
-            ]);
-        } else {
-            echo json_encode(["success" => false, "message" => "Credenciales inválidas"]);
-        }
+try {
+    $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = :email");
+    $stmt->bindParam(':email', $email);
+    $stmt->execute();
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    } catch (PDOException $e) {
-        echo json_encode(["success" => false, "message" => "Error de conexión: " . $e->getMessage()]);
+    if ($usuario && password_verify($password, $usuario['password'])) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Inicio de sesión correcto',
+            'usuario' => [
+                'id' => $usuario['id'],
+                'nombre' => $usuario['nombre'],
+                'email' => $usuario['email'],
+                'rol' => $usuario['rol']
+            ]
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Credenciales incorrectas'
+        ]);
     }
-
-} else {
-    echo json_encode(["success" => false, "message" => "Faltan datos"]);
+} catch (PDOException $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error en el servidor: ' . $e->getMessage()
+    ]);
 }
 ?>

@@ -7,70 +7,64 @@ export default function RegisterForm() {
     password: '',
   });
 
-  body: JSON.stringify(formData)
-
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // IMPORTANTE para evitar que el navegador haga un envío por defecto
 
     try {
-      const response = await fetch("http://localhost/suplemax-project/src/backend/register.php", {
-        method: "POST",
+      const response = await fetch('http://localhost/suplemax-project/src/backend/register.php', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json', // Enviamos JSON
         },
-        body: JSON.stringify({
-          nombre: formData.nombre,
-          email: formData.email,
-          password: formData.password,
-        }),
+        body: JSON.stringify(formData), // Convertimos los datos a JSON
       });
 
       const data = await response.json();
+      console.log('Respuesta del backend:', data);
       alert(data.message);
     } catch (error) {
-      console.error("Error en el registro:", error);
+      console.error('Error en el registro:', error);
     }
   };
 
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
-      <h2 className="text-xl font-bold">Registro</h2>
+    <div>
+      <h2>Registro</h2>
 
-      <input
-        name="nombre"
-        placeholder="Nombre"
-        onChange={handleChange}
-        className="w-full border p-2"
-        required
-      />
+      {/* El formulario no tiene "action" ni "method", solo usa handleSubmit */}
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="nombre"
+          value={formData.nombre}
+          onChange={handleChange}
+          placeholder="Nombre"
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="Correo electrónico"
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Contraseña"
+          required
+        />
 
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        onChange={handleChange}
-        className="w-full border p-2"
-        required
-      />
-
-      <input
-        name="password"
-        type="password"
-        placeholder="Contraseña"
-        onChange={handleChange}
-        className="w-full border p-2"
-      />
-
-
-      <button type="submit" className="bg-black text-white px-4 py-2">
-        Registrar
-      </button>
-    </form>
+        {/* Este botón sí puede ser de tipo submit */}
+        <button type="submit">Registrarse</button>
+      </form>
+    </div>
   );
 }

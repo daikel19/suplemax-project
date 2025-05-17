@@ -1,64 +1,52 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // 👈 evitar que el navegador haga submit normal
+
     try {
-      const response = await fetch("http://localhost/suplemax-project/src/backend/login.php", {
-        method: "POST",
+      const response = await fetch('http://localhost/suplemax-project/src/backend/login.php', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json', // 👈 asegúrate que va como JSON
         },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        })
+        body: JSON.stringify(formData), // 👈 convierte tu objeto a JSON
       });
 
       const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem("usuario", JSON.stringify(data.usuario));
-        alert("Inicio de sesión correcto");
-        window.location.href = "/";
-      } else {
-        alert(data.message);
-      }
+      console.log(data);
+      alert(data.message);
     } catch (error) {
-      console.error("Error al iniciar sesión", error);
-      alert("No se pudo iniciar sesión");
+      console.error('Error al iniciar sesión:', error);
     }
   };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-4 max-w-md mx-auto">
-      <h2 className="text-xl font-bold">Iniciar sesión</h2>
+    <form onSubmit={handleSubmit}>
       <input
-        name="email"
         type="email"
-        placeholder="Email"
+        name="email"
+        value={formData.email}
         onChange={handleChange}
-        className="w-full border p-2"
+        placeholder="Correo"
       />
       <input
-        name="password"
         type="password"
-        placeholder="Contraseña"
+        name="password"
+        value={formData.password}
         onChange={handleChange}
-        className="w-full border p-2"
+        placeholder="Contraseña"
       />
-      <button type="submit" className="bg-black text-white px-4 py-2">
-        Entrar
-      </button>
+      <button type="submit">Iniciar sesión</button>
     </form>
   );
 }
