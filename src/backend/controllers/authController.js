@@ -1,8 +1,9 @@
+import db from '../db.js';
 import bcrypt from 'bcrypt';
-import { findUserByEmail, createUser } from '../models/userModel.js';
 
-export const register = async (req, res) => {
+export const registerUser = async (req, res) => {
   const { nombre, email, password } = req.body;
+  console.log("📥 Datos recibidos en register:", { nombre, email, password });
 
   if (!nombre || !email || !password) {
     return res.status(400).json({ success: false, message: 'Faltan datos' });
@@ -10,30 +11,51 @@ export const register = async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const id = await createUser({ nombre, email, password: hashedPassword });
+    const [result] = await db.execute(
+      'INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)',
+      [nombre, email, hashedPassword]
+    );
 
-    return res.json({
+    res.json({
       success: true,
       message: 'Registro exitoso',
-      usuario: { id, nombre, email, rol: 'cliente' },
+      usuario: {
+        id: result.insertId,
+        nombre,
+        email,
+        rol: 'cliente',
+      },
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Error al registrar', error: error.message });
+    console.error("❌ Error en registerUser:", error.message, error.stack);
+    res.status(500).json({
+      success: false,
+      message: 'Error en el servidor',
+    });
+
   }
 };
 
-export const login = async (req, res) => {
+export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const usuario = await findUserByEmail(email);
-    if (!usuario || !(await bcrypt.compare(password, usuario.password))) {
-      return res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
+    const [rows] = await db.execute("SELECT * FROM usuarios WHERE email = ?", [email]);
+
+    if (rows.length === 0) {
+      return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
     }
 
-    return res.json({
+    const usuario = rows[0];
+
+    const isPasswordCorrect = await bcrypt.compare(password, usuario.password); // <- importante
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
+    }
+
+    res.json({
       success: true,
-      message: 'Inicio de sesión correcto',
+      message: "Inicio de sesión correcto",
       usuario: {
         id: usuario.id,
         nombre: usuario.nombre,
@@ -42,6 +64,7 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Error en el servidor', error: error.message });
+    console.error("Error en login:", error);
+    res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };

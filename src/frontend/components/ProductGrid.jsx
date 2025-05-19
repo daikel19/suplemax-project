@@ -1,36 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import CategoryDropdown from './CategoryDropdown';
 
-const productos = [
-  {
-    nombre: "Proteína Whey",
-    precio: "29,99 €",
-    imagen: "/img/whey.png"
-  },
-  {
-    nombre: "Creatina Monohidrato",
-    precio: "19,99 €",
-    imagen: "/img/creatina.png"
-  },
-  {
-    nombre: "Pre-entreno Black",
-    precio: "24,99 €",
-    imagen: "/img/preentreno.png"
-  },
-];
+const ProductGrid = () => {
+  const [productos, setProductos] = useState([]);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
 
-export default function ProductGrid() {
+  const fetchProductos = async (categoriaId = null) => {
+    try {
+      const endpoint = categoriaId
+        ? `http://localhost:3000/api/productos/categoria/${categoriaId}`
+        : 'http://localhost:3000/api/productos';
+
+      const response = await axios.get(endpoint);
+      setProductos(response.data);
+    } catch (error) {
+      console.error('Error al obtener productos:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProductos(categoriaSeleccionada);
+  }, [categoriaSeleccionada]);
+
   return (
-    <section id="productos" className="py-16 px-6">
-      <h3 className="text-center text-3xl font-bold mb-12">NUESTROS PRODUCTOS</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div className="space-y-6">
+      <CategoryDropdown onSelect={setCategoriaSeleccionada} />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         {productos.map((producto) => (
-          <div key={producto.nombre} className="border p-6 text-center shadow-sm hover:shadow-lg transition">
-            <img src={producto.imagen} alt={producto.nombre} className="w-40 mx-auto mb-4" />
-            <h4 className="text-xl font-semibold">{producto.nombre}</h4>
-            <p className="mt-2 text-gray-700">{producto.precio}</p>
+          <div key={producto.id} className="border p-4 rounded shadow">
+            <h3 className="font-bold">{producto.nombre}</h3>
+            <p className="text-sm text-gray-600">{producto.marca}</p>
+            <p className="mt-1 text-black font-semibold">{producto.precio} €</p>
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
-}
+};
+
+export default ProductGrid;

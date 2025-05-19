@@ -4,7 +4,7 @@ import Hero from "./components/Hero";
 import ProductGrid from "./components/ProductGrid";
 import Footer from "./components/Footer";
 import FeaturedCategories from "./components/FeaturedCategories";
-
+import Suplebot from "./components/Suplebot";
 
 export default function App() {
   return (
@@ -13,6 +13,7 @@ export default function App() {
       <Hero />  
       <FeaturedCategories />
       <ProductGrid />
+      <Suplebot />
       <Footer />
     </div>
   );

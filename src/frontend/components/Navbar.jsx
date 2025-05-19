@@ -12,7 +12,7 @@ export default function Navbar() {
       try {
         setUsuario(JSON.parse(storedUser));
       } catch (e) {
-        console.error("Error al parsear usuario:", e);
+        console.error("Error al parsear el usuario:", e);
       }
     }
   }, []);
@@ -20,7 +20,7 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem("usuario");
     setUsuario(null);
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   return (
