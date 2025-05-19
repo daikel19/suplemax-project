@@ -1,6 +1,6 @@
 import db from '../db.js';
 
-// Obtener todos los productos o filtrados por categoría
+// Obtener todos los productos o filtrados por nombre de categoría (query param)
 export const getProducts = async (req, res) => {
   const { categoria } = req.query;
 
@@ -21,6 +21,25 @@ export const getProducts = async (req, res) => {
     res.json(productos);
   } catch (error) {
     console.error('Error al obtener productos:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+};
+
+// ✅ NUEVA función para obtener productos por ID de categoría (req.params.id)
+export const getProductsByCategoryId = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const query = `
+      SELECT p.*, c.nombre AS categoria
+      FROM productos p
+      LEFT JOIN categorias c ON p.id_categoria = c.id
+      WHERE p.id_categoria = ?
+    `;
+    const [productos] = await db.execute(query, [id]);
+    res.json(productos);
+  } catch (error) {
+    console.error('Error al obtener productos por categoría:', error);
     res.status(500).json({ message: 'Error en el servidor' });
   }
 };

@@ -5,9 +5,13 @@ import { ShoppingCart, User, Search } from 'lucide-react';
 export default function Navbar() {
   const [usuario, setUsuario] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [carrito, setCarrito] = useState([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("usuario");
+    const storedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    setCarrito(storedCart);
+
     if (storedUser) {
       try {
         setUsuario(JSON.parse(storedUser));
@@ -24,22 +28,30 @@ export default function Navbar() {
   };
 
   return (
-    <header className="w-full bg-white text-black shadow-md">
+    <header className="w-full bg-white text-black">
       <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
         <Link to="/" className="text-xl font-bold uppercase tracking-wide">
           Suplemax
         </Link>
 
-        <nav className="flex items-center gap-6">
-          <Link to="/productos" className="hover:text-gray-600">Productos</Link>
-          <Link to="/categorias" className="hover:text-gray-600">Categorías</Link>
-          <Link to="/contacto" className="hover:text-gray-600">Contacto</Link>
+        <nav className="flex items-center gap-6 text-sm font-medium">
+          <Link to="/categoria/1" className="hover:text-gray-600">Proteínas</Link>
+          <Link to="/categoria/2" className="hover:text-gray-600">Creatina</Link>
+          <Link to="/categoria/3" className="hover:text-gray-600">Vitaminas</Link>
+          <Link to="/categoria/4" className="hover:text-gray-600">Preentrenos</Link>
+          <Link to="/contacto">Contacto</Link>
+
           <Link to="/busqueda" className="hover:text-gray-600">
             <Search className="w-5 h-5" />
           </Link>
 
-          <Link to="/carrito" className="hover:text-gray-600">
+          <Link to="/carrito" className="relative">
             <ShoppingCart className="w-5 h-5" />
+            {carrito.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1">
+                {carrito.length}
+              </span>
+            )}
           </Link>
 
           {usuario ? (

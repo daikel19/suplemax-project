@@ -7,29 +7,35 @@ const CategoryDropdown = ({ onSelect }) => {
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/categorias');
-        setCategorias(response.data);
+        const res = await axios.get('http://localhost:3000/api/categorias');
+        setCategorias(res.data);
       } catch (error) {
-        console.error('Error al obtener categorías:', error);
+        console.error('Error al cargar categorías:', error);
       }
     };
+
     fetchCategorias();
   }, []);
 
   const handleChange = (e) => {
-    const categoriaId = parseInt(e.target.value);
-    onSelect(categoriaId); // Notifica al componente padre
+    const selectedId = e.target.value;
+    onSelect(selectedId ? parseInt(selectedId) : null); // null = mostrar todos
   };
 
   return (
-    <select onChange={handleChange} className="p-2 border rounded">
-      <option value="">Todas las categorías</option>
-      {categorias.map((cat) => (
-        <option key={cat.id} value={cat.id}>
-          {cat.nombre}
-        </option>
-      ))}
-    </select>
+    <div className="mb-4">
+      <select
+        onChange={handleChange}
+        className="border border-gray-300 px-4 py-2 rounded text-black"
+      >
+        <option value="">Todas las categorías</option>
+        {categorias.map((categoria) => (
+          <option key={categoria.id} value={categoria.id}>
+            {categoria.nombre}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 };
 

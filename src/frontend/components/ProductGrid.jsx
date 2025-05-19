@@ -25,14 +25,21 @@ const ProductGrid = () => {
 
   return (
     <div className="space-y-6">
-      <CategoryDropdown onSelect={setCategoriaSeleccionada} />
+      <div className="w-full max-w-xs">
+        <CategoryDropdown onSelect={setCategoriaSeleccionada} />
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {productos.map((producto) => (
-          <div key={producto.id} className="border p-4 rounded shadow">
-            <h3 className="font-bold">{producto.nombre}</h3>
-            <p className="text-sm text-gray-600">{producto.marca}</p>
-            <p className="mt-1 text-black font-semibold">{producto.precio} €</p>
+          <div
+            key={producto.id}
+            className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all"
+          >
+            <div className="mb-2">
+              <h3 className="font-semibold text-lg">{producto.nombre}</h3>
+              <p className="text-sm text-gray-500">{producto.marca}</p>
+            </div>
+            <p className="text-xl font-bold text-black">{producto.precio} €</p>
           </div>
         ))}
       </div>
