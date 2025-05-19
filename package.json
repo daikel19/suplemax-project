@@ -14,7 +14,7 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
-    "@botpress/webchat": "^2.6.2",
+    "@botpress/webchat": "^1.1.1",
     "@headlessui/react": "^2.2.3",
     "@heroicons/react": "^2.2.0",
     "axios": "^1.9.0",

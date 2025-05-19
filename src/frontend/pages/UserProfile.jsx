@@ -7,76 +7,66 @@ export default function UserProfile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const data = localStorage.getItem('usuario');
-    if (data) {
-      const user = JSON.parse(data);
-      setUsuario(user);
+    const savedUser = localStorage.getItem('usuario');
+    if (savedUser) {
+      const usuarioParsed = JSON.parse(savedUser);
+      setUsuario(usuarioParsed);
 
-      // Traer pedidos reales
-      fetch(`http://localhost:3000/api/pedidos/${user.id}`)
-        .then((res) => res.json())
-        .then((data) => setPedidos(data))
-        .catch((err) => console.error('Error al cargar pedidos:', err));
+      fetch(`http://localhost:3000/api/pedidos/${usuarioParsed.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setPedidos(data);
+          } else {
+            setPedidos([]);
+          }
+        })
+        .catch(() => setPedidos([]));
     }
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('usuario');
-    navigate('/');
-  };
 
   if (!usuario) {
     return <div className="p-6 text-center text-gray-600">No has iniciado sesión.</div>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 text-black">
-      <h1 className="text-3xl font-bold mb-6 text-center">Mi Perfil</h1>
+    <div className="max-w-5xl mx-auto px-6 py-12">
+      <h1 className="text-3xl font-bold mb-8">Pedidos</h1>
 
-      <div className="bg-white shadow rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Información Personal</h2>
-        <p><strong>Nombre:</strong> {usuario.nombre}</p>
-        <p><strong>Email:</strong> {usuario.email}</p>
-        <p><strong>Rol:</strong> {usuario.rol}</p>
-      </div>
+      {pedidos.length === 0 ? (
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-10 text-center">
+          <p className="text-xl font-semibold mb-2">Aún no tienes ningún pedido realizado</p>
+          <p className="text-gray-500">Ve a la tienda para realizar un pedido.</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {pedidos.map((pedido) => (
+            <div
+              key={pedido.id}
+              className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-sm text-gray-500">Pedido Nº {pedido.id}</p>
+                <p className="text-sm text-gray-500">
+                  {new Date(pedido.fecha).toLocaleDateString('es-ES')}
+                </p>
+              </div>
 
-      <div className="bg-white shadow rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Pedidos</h2>
-        {pedidos.length === 0 ? (
-          <p>No tienes pedidos.</p>
-        ) : (
-          pedidos.map((pedido) => (
-            <div key={pedido.id} className="border-t pt-4 mb-4">
-              <p><strong>ID Pedido:</strong> {pedido.id}</p>
-              <p><strong>Total:</strong> {pedido.total} €</p>
-              <p><strong>Estado:</strong> {pedido.estado}</p>
-              <p className="mt-2"><strong>Productos:</strong></p>
-              <ul className="ml-4 list-disc">
-                {pedido.productos.map((prod, i) => (
+              <ul className="text-sm text-gray-700 list-disc ml-5 space-y-1">
+                {pedido.detalles.map((prod, i) => (
                   <li key={i}>
-                    {prod.nombre} – {prod.cantidad} ud. – {prod.precio_unitario} €
+                    {prod.nombre} – {prod.cantidad} ud. – {(prod.precio_unitario * prod.cantidad).toFixed(2)} €
                   </li>
                 ))}
               </ul>
-            </div>
-          ))
-        )}
-      </div>
 
-      <div className="flex justify-between mt-6">
-        <button
-          className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600"
-          onClick={handleLogout}
-        >
-          Cerrar sesión
-        </button>
-        <button
-          className="bg-black text-white px-4 py-2 rounded hover:bg-gray-700"
-          onClick={() => navigate('/')}
-        >
-          Volver al inicio
-        </button>
-      </div>
+              <div className="text-right mt-3 font-semibold">
+                Total: {pedido.detalles.reduce((sum, p) => sum + p.precio_unitario * p.cantidad, 0).toFixed(2)} €
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,25 +1,30 @@
-import { useEffect } from 'react'
-import { BsChatDots } from 'react-icons/bs'
+import { useEffect } from 'react';
 
 function Suplebot() {
   useEffect(() => {
-    const inject = document.createElement('script')
-    inject.src = 'https://cdn.botpress.cloud/webchat/v2.5/inject.js'
-    inject.async = true
-    document.body.appendChild(inject)
+    const injectScript = document.createElement('script');
+    injectScript.src = 'https://cdn.botpress.cloud/webchat/v2.5/inject.js';
+    injectScript.async = true;
 
-    const config = document.createElement('script')
-    config.src = 'https://files.bpcontent.cloud/2025/05/12/17/20250512175626-8AO6D53Z.js'
-    config.async = true
-    document.body.appendChild(config)
+    injectScript.onload = () => {
+      const configScript = document.createElement('script');
+      configScript.src = 'https://files.bpcontent.cloud/2025/05/12/17/20250512175626-8AO6D53Z.js';
+      configScript.async = true;
+      document.body.appendChild(configScript);
+    };
+
+    document.body.appendChild(injectScript);
 
     return () => {
-      document.body.removeChild(inject)
-      document.body.removeChild(config)
-    }
-  }, [])
+      document.body.removeChild(injectScript);
+      const oldConfig = document.querySelector(
+        'script[src="https://files.bpcontent.cloud/2025/05/12/17/20250512175626-8AO6D53Z.js"]'
+      );
+      if (oldConfig) document.body.removeChild(oldConfig);
+    };
+  }, []);
 
-  return null
+  return null;
 }
 
-export default Suplebot
+export default Suplebot;

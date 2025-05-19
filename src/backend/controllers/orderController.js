@@ -17,10 +17,16 @@ export const getUserOrders = async (req, res) => {
 
 export const addOrder = async (req, res) => {
   const { id_usuario, carrito } = req.body;
+
+  if (!id_usuario || !carrito || carrito.length === 0) {
+    return res.status(400).json({ message: "Datos de pedido incompletos" });
+  }
+
   try {
-    const id_pedido = await createOrder(id_usuario, carrito);
+    const id_pedido = await createOrder(id_usuario, carrito); // función en orderModel.js
     res.json({ success: true, id_pedido });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error al crear pedido', error });
+    console.error("Error al crear pedido:", error);
+    res.status(500).json({ success: false, message: "Error al crear pedido" });
   }
 };
