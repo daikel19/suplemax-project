@@ -5,13 +5,13 @@ export const obtenerPedidosPorUsuario = async (req, res) => {
 
   try {
     const db = await getConnection();
-    // 1. Obtener pedidos del usuario
+    // obtener pedidos del usuario
     const [pedidos] = await db.execute(
       `SELECT id, total, estado, fecha FROM pedidos WHERE id_usuario = ? ORDER BY fecha DESC`,
       [id_usuario]
     );
 
-    // 2. Para cada pedido, obtener sus productos
+    // para cada pedido obtener sus productos
     const pedidosConDetalles = await Promise.all(
       pedidos.map(async (pedido) => {
         const [detalles] = await db.execute(

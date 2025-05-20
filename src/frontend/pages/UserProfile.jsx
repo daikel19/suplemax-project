@@ -15,8 +15,8 @@ export default function UserProfile() {
       fetch(`http://localhost:3000/api/pedidos/${usuarioParsed.id}`)
         .then(res => res.json())
         .then(data => {
-          if (Array.isArray(data)) {
-            setPedidos(data);
+          if (data.success && Array.isArray(data.pedidos)) {
+            setPedidos(data.pedidos);
           } else {
             setPedidos([]);
           }
@@ -53,16 +53,15 @@ export default function UserProfile() {
               </div>
 
               <ul className="text-sm text-gray-700 list-disc ml-5 space-y-1">
-                {pedido.detalles.map((prod, i) => (
+                {pedido.productos.map((prod, i) => (
                   <li key={i}>
                     {prod.nombre} – {prod.cantidad} ud. – {(prod.precio_unitario * prod.cantidad).toFixed(2)} €
                   </li>
                 ))}
-              </ul>
-
-              <div className="text-right mt-3 font-semibold">
-                Total: {pedido.detalles.reduce((sum, p) => sum + p.precio_unitario * p.cantidad, 0).toFixed(2)} €
-              </div>
+                <div className="text-right mt-3 font-semibold">
+                  Total: {pedido.productos.reduce((sum, p) => sum + p.precio_unitario * p.cantidad, 0).toFixed(2)} €
+                </div>
+                </ul>
             </div>
           ))}
         </div>

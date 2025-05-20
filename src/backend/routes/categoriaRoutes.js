@@ -1,4 +1,3 @@
-// routes/categoriaRoutes.js
 import express from 'express';
 import { getCategorias } from '../controllers/categoriaController.js';
 

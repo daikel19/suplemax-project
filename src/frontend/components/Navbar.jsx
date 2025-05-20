@@ -6,30 +6,42 @@ import { useUsuario } from "../context/UserContext";
 
 export default function Navbar() {
   const { usuario, logoutUsuario, cargando } = useUsuario();
+  useEffect(() => {
+  }, [usuario]);
+
   const { carrito } = useCart();
+
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [busquedaAbierta, setBusquedaAbierta] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [recientes, setRecientes] = useState([]);
-  const searchRef = useRef(null);
   const menuRef = useRef(null);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
 
-    if (cargando) return null;
+  if (cargando) return null;
 
   const totalCantidad = carrito.reduce((acc, p) => acc + p.cantidad, 0);
 
-  // Manejo búsqueda reciente
+  useEffect(() => {
+    const clickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuAbierto(false);
+      if (searchRef.current && !searchRef.current.contains(e.target)) setBusquedaAbierta(false);
+    };
+    document.addEventListener("mousedown", clickOutside);
+    return () => document.removeEventListener("mousedown", clickOutside);
+  }, []);
+
   const guardarBusqueda = (termino) => {
     if (!termino.trim()) return;
     const prev = JSON.parse(localStorage.getItem("busquedas")) || [];
-    const nuevas = [termino, ...prev.filter((b) => b !== termino)].slice(0, 5);
+    const nuevas = [termino, ...prev.filter(b => b !== termino)].slice(0, 5);
     localStorage.setItem("busquedas", JSON.stringify(nuevas));
     setRecientes(nuevas);
   };
 
   const eliminarBusqueda = (termino) => {
-    const nuevas = recientes.filter((b) => b !== termino);
+    const nuevas = recientes.filter(b => b !== termino);
     localStorage.setItem("busquedas", JSON.stringify(nuevas));
     setRecientes(nuevas);
   };
@@ -43,20 +55,6 @@ export default function Navbar() {
     setBusquedaAbierta(false);
   };
 
-  // Manejo clic fuera de menús
-  useEffect(() => {
-    const clickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuAbierto(false);
-      }
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
-        setBusquedaAbierta(false);
-      }
-    };
-    document.addEventListener("mousedown", clickOutside);
-    return () => document.removeEventListener("mousedown", clickOutside);
-  }, []);
-
   const handleLogout = async () => {
     try {
       await fetch("http://localhost/suplemax-project/php/logout.php", {
@@ -65,8 +63,8 @@ export default function Navbar() {
       });
       logoutUsuario();
       navigate("/");
-    } catch (error) {
-      console.error("❌ Error al cerrar sesión:", error);
+    } catch (err) {
+      console.error("Error al cerrar sesión:", err);
     }
   };
 
@@ -82,7 +80,7 @@ export default function Navbar() {
           <Link to="/productos/creatina" className="hover:text-gray-600">Creatina</Link>
           <Link to="/productos/vitaminas" className="hover:text-gray-600">Vitaminas</Link>
           <Link to="/productos/preentrenos" className="hover:text-gray-600">Preentrenos</Link>
-          <Link to="/contacto" className="hover:text-gray-600">Contacto</Link>
+          {/* <Link to="/contacto" className="hover:text-gray-600">Contacto</Link> */}
 
           {/* Buscador */}
           <div ref={searchRef} className="relative">
@@ -95,14 +93,13 @@ export default function Navbar() {
                   <input
                     type="text"
                     value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
+                    onChange={e => setBusqueda(e.target.value)}
                     placeholder="Buscar proteínas, alimentos..."
                     className="flex-grow px-3 py-2 border border-gray-300 rounded text-sm"
                   />
-                  <button type="submit" className="bg-black text-white px-4 py-2 rounded">
-                    Ir
-                  </button>
+                  <button type="submit" className="bg-black text-white px-4 py-2 rounded">Ir</button>
                 </form>
+
                 {recientes.length > 0 && (
                   <div className="text-sm">
                     <p className="text-gray-500 mb-2 font-medium">Búsquedas recientes</p>
@@ -111,7 +108,7 @@ export default function Navbar() {
                         <li key={idx} className="flex justify-between items-center hover:bg-gray-50 px-2 py-1 rounded cursor-pointer">
                           <span onClick={() => {
                             setBusqueda(term);
-                            handleBuscar({ preventDefault: () => {} });
+                            handleBuscar({ preventDefault: () => { } });
                           }}>{term}</span>
                           <button onClick={() => eliminarBusqueda(term)} className="text-gray-400 hover:text-red-500">
                             <X size={16} />

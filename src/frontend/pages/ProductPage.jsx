@@ -86,7 +86,7 @@ export default function ProductPage() {
   const [marcaSeleccionada, setMarcaSeleccionada] = useState('');
   const [cantidades, setCantidades] = useState({});
   const { añadirProducto } = useCart();
-  const [clickedId, setClickedId] = useState(null); // 🆕 para animación
+  const [clickedId, setClickedId] = useState(null); 
 
   const titulo = categoriaNombre
     ? decodeURIComponent(categoriaNombre)

@@ -28,7 +28,7 @@ export const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Error en registerUser:", error.message, error.stack);
+    console.error("Error en registerUser:", error.message, error.stack);
     res.status(500).json({
       success: false,
       message: 'Error en el servidor',

@@ -1,4 +1,7 @@
 <?php
+session_start(); 
+
+// cabeceras CORS necesarias para cookies cross-domain
 header("Access-Control-Allow-Origin: http://localhost");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -9,8 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-session_start();
-
+// verificamos si hay sesión activa
 if (isset($_SESSION['usuario_id'])) {
     echo json_encode([
         "session" => [

@@ -29,12 +29,12 @@ export function CartProvider({ children }) {
         setCarrito(prev => prev.filter(p => p.id !== id));
     };
 
-    const vaciarCarrito = () => {
+    const clearCart = () => {
         setCarrito([]);
     };
 
     return (
-        <CartContext.Provider value={{ carrito, añadirProducto, eliminarProducto, vaciarCarrito }}>
+        <CartContext.Provider value={{ carrito, añadirProducto, eliminarProducto, clearCart }}>
             {children}
         </CartContext.Provider>
     );

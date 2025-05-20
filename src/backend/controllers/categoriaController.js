@@ -1,4 +1,3 @@
-// controllers/categoriaController.js
 import { getConnection } from '../db.js';
 
 export const getCategorias = async (req, res) => {

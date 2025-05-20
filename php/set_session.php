@@ -1,5 +1,7 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost");
+
+session_start();
+header("Access-Control-Allow-Origin: *"); // solo para desarrollo (no pienso usar mas nunca php)
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
@@ -9,7 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-session_start();
+
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_secure', 'false');
 
 $input = json_decode(file_get_contents("php://input"), true);
 
