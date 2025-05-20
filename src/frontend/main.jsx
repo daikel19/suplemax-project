@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -13,10 +12,13 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import Suplebot from "./components/Suplebot";
 import "./index.css";
 
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <CartProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/suplemax-project/dist/">
         <Navbar />
         <Routes>
           <Route path="/" element={<App />} />
@@ -28,7 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/confirmacion" element={<OrderConfirmation />} />
         </Routes>
-        <Suplebot/>
+        <Suplebot />
       </BrowserRouter>
     </CartProvider>
   </React.StrictMode>

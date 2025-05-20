@@ -9,7 +9,12 @@ import orderRoutes from './routes/orderRoutes.js';
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost",
+  credentials: true
+}));
+
 app.use(express.json());
 
 app.use('/api', authRoutes);

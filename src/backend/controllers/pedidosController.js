@@ -1,9 +1,10 @@
-import db from '../db.js';
+import { getConnection } from '../db.js';
 
 export const obtenerPedidosPorUsuario = async (req, res) => {
   const { id_usuario } = req.params;
 
   try {
+    const db = await getConnection();
     // 1. Obtener pedidos del usuario
     const [pedidos] = await db.execute(
       `SELECT id, total, estado, fecha FROM pedidos WHERE id_usuario = ? ORDER BY fecha DESC`,

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { LogIn } from "lucide-react";
 
-export default function Login() {
+export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
@@ -12,6 +12,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const response = await fetch("http://localhost:3000/api/login", {
         method: "POST",
@@ -21,10 +22,27 @@ export default function Login() {
 
       const data = await response.json();
       if (data.success) {
+        // Guardar en localStorage
         localStorage.setItem("usuario", JSON.stringify(data.usuario));
-        window.location.href = "/";
+
+        // Establecer cookies desde PHP
+        await fetch("http://localhost/suplemax-project/php/set_session.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include", // importante para que se mantengan
+          body: JSON.stringify({
+            usuario_id: data.usuario.id,
+            usuario_nombre: data.usuario.nombre,
+            usuario_email: data.usuario.email,
+          }),
+        });
+
+        // Dar un pequeño delay para asegurar que la cookie se establezca
+        setTimeout(() => {
+          window.location.href = "/suplemax-project/dist/";
+        }, 300);
       } else {
-        alert(data.message);
+        alert(data.message || "Error en el login");
       }
     } catch (error) {
       console.error("Error al iniciar sesión:", error);

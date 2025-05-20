@@ -1,10 +1,11 @@
-import db from '../db.js';
+import { getConnection } from '../db.js';
 
-// Obtener todos los productos o filtrados por nombre de categoría (query param)
 export const getProducts = async (req, res) => {
   const { categoria } = req.query;
 
+  
   try {
+    const db = await getConnection();
     let query = `
       SELECT p.*, c.nombre AS categoria
       FROM productos p
@@ -25,10 +26,10 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// ✅ NUEVA función para obtener productos por ID de categoría (req.params.id)
 export const getProductsByCategory = async (req, res) => {
   const { nombre } = req.params;
   try {
+    const db = await getConnection();
     const query = `
       SELECT p.* FROM productos p
       JOIN categorias c ON p.id_categoria = c.id
@@ -40,4 +41,3 @@ export const getProductsByCategory = async (req, res) => {
     res.status(500).json({ error: "Error en el servidor" });
   }
 };
-

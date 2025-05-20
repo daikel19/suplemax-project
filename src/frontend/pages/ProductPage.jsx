@@ -1,16 +1,20 @@
+import React, { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
+import { useCart } from '../context/CartContext';
+import { ShoppingCart } from 'lucide-react';
+
+// Imágenes importadas
 import BCCAHSN from "../../assets/BCCAHSN.png";
 import CreatinaBigNeutra from "../../assets/CreatinaBigNeutra.png";
 import CreatinaLifeProNeutra from "../../assets/CreatinaLifeProNeutra.png";
-import CreatinahsNNeutra from "../../assets/CreatinahsNNeutra.png";
+import CreatinaQuamtraxNeutra from "../../assets/CreatinaQuamtraxNeutra.png"
 import DailyVitaminasOP from "../../assets/DailyVitaminasOP.png";
 import EssentialAminoOP from "../../assets/EssentialAminoOP.png";
 import IsolateGourmetLFChocoMonky from "../../assets/IsolateGourmetLFChocoMonky.png";
-import IsoWheyZeroBiotech from "../../assets/IsoWheyZeroBiotech.png";
-import IsoWheyZeroOP from "../../assets/IsoWheyZeroOP.png";
 import NapalmPreContestFANutrition from "../../assets/NapalmPreContestFANutrition.png";
 import NOXplodeBSN from "../../assets/NO-XplodeBSN.png";
 import PreWorkoutBig from "../../assets/PreWorkoutBig.png";
-import ProteinaWheyBrownie from "../../assets/ProteinaWheyBrownie.png";
 import VitaEssentialsBig from "../../assets/VitaEssentialsBig.png";
 import VitaminaCAmix from "../../assets/VitaminaCAmix.png";
 import VitaminaCIO from "../../assets/VitaminaCIO.png";
@@ -18,65 +22,86 @@ import VitaminasDiariasHSN from "../../assets/VitaminasDiariasHSN.png";
 import WheyPureBigOnePiece from "../../assets/WheyPureBigOnePiece.png";
 import WildPumpLFCola from "../../assets/WildPumpLFCola.png";
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
-import { useCart } from '../context/CartContext';
-import { useLocation } from 'react-router-dom';
-
 export default function ProductPage() {
-
   const imagenes = {
-    'NO-Xplode': NOXplodeBSN,
-    'Creatina 100% Pure': CreatinaBigNeutra,
-    'Creatina Life Pro': CreatinaLifeProNeutra,
-    'Creatina HSN': CreatinahsNNeutra,
-    'Daily Vitamins': DailyVitaminasOP,
-    'Essential Amino': EssentialAminoOP,
-    'Isolate Gourmet': IsolateGourmetLFChocoMonky,
-    'Iso Whey Zero': IsoWheyZeroOP,
-    'Iso Whey Zero Biotech': IsoWheyZeroBiotech,
-    'Napalm PreContest': NapalmPreContestFANutrition,
-    'PreWorkout Big': PreWorkoutBig,
-    'Proteina Whey Brownie': ProteinaWheyBrownie,
-    'Vita+ Essentials': VitaEssentialsBig,
-    'Vitamina C Amix': VitaminaCAmix,
-    'Vitamina C Iogenix': VitaminaCIO,
-    'Vitaminas Diarias': VitaminasDiariasHSN,
-    'Whey Pure': WheyPureBigOnePiece,
-    'Wild Pump': WildPumpLFCola,
-    'BCAA HSN': BCCAHSN
+    // Aminoácidos
+    "Essential Amino Energy": EssentialAminoOP,
+    "AminoComplete": EssentialAminoOP,
+    "Aminoacids Powder": EssentialAminoOP,
+    "BCAA 8:1:1": BCCAHSN,
+    "BCAA Instant": BCCAHSN,
+
+    // Vitaminas y multivitamínicos
+    "Vitaminas Diarias": VitaminasDiariasHSN,
+    "Daily Vitamins": DailyVitaminasOP,
+    "Vita+ Essentials": VitaEssentialsBig,
+    "Multivitamin Complex": VitaminaCIO,
+    "MultiVit": VitaminaCAmix,
+    "Omega 3": VitaEssentialsBig,
+    "ZMA Advanced": VitaEssentialsBig,
+    "Joint+ Colágeno": VitaEssentialsBig,
+    "Melatonina 1mg": VitaEssentialsBig,
+
+    // Creatinas
+    "Creatina 100% Pure": CreatinaBigNeutra,
+    "Creatina Monohidratada": CreatinaLifeProNeutra,
+    "Creatine Monohydrate": CreatinaQuamtraxNeutra,
+
+    // Proteínas
+    "Isolate Gourmet": IsolateGourmetLFChocoMonky,
+    "Whey Pure OnePiece": WheyPureBigOnePiece,
+   
+    // Pre-entrenos
+    "NO-Xplode": NOXplodeBSN,
+    "PreWorkout 2.0": PreWorkoutBig,
+    "Explosive Pump": WildPumpLFCola,
+    "Napalm Pre-Contest": NapalmPreContestFANutrition,
+
+    // Termogénicos
+    "ThermoPro": WildPumpLFCola,
+    "Fat Burner Extreme": WildPumpLFCola,
+    "Lipo 6 Black": WildPumpLFCola,
+    "Burner Thermo": WildPumpLFCola,
+    "Green Coffee Burner": WildPumpLFCola,
+
+    // Otros
+    "CLA 1000mg": WildPumpLFCola,
+    "Creapowder": WildPumpLFCola,
+    "Boogieman": WildPumpLFCola,
+
+    // Gainers
+    "Mass Gainer Elite": WildPumpLFCola,
+    "Serious Mass": WildPumpLFCola,
+    "Super Mega Gainer": WildPumpLFCola,
+    "Mass Professional": WildPumpLFCola,
+    "Gainer Pro": WildPumpLFCola,
   };
 
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const buscar = params.get('buscar')?.toLowerCase() || '';
+
   const { categoriaNombre } = useParams();
   const [searchParams] = useSearchParams();
   const terminoBusqueda = searchParams.get('buscar')?.toLowerCase() || null;
 
   const [productos, setProductos] = useState([]);
-  const [precioMaximo, setPrecioMaximo] = useState('');
   const [marcaSeleccionada, setMarcaSeleccionada] = useState('');
   const [cantidades, setCantidades] = useState({});
   const { añadirProducto } = useCart();
+  const [clickedId, setClickedId] = useState(null); // 🆕 para animación
 
   const titulo = categoriaNombre
     ? decodeURIComponent(categoriaNombre)
     : terminoBusqueda
-    ? `Resultados para "${terminoBusqueda}"`
-    : 'Productos';
+      ? `Resultados para "${terminoBusqueda}"`
+      : 'Productos';
 
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        if (categoriaNombre) {
-          const response = await axios.get(`http://localhost:3000/api/productos/categoria/${categoriaNombre}`);
-          setProductos(response.data);
-        } else {
-          const response = await axios.get(`http://localhost:3000/api/productos`);
-          setProductos(response.data);
-        }
+        const url = categoriaNombre
+          ? `http://localhost:3000/api/productos/categoria/${categoriaNombre}`
+          : `http://localhost:3000/api/productos`;
+        const response = await axios.get(url);
+        setProductos(response.data);
       } catch (error) {
         console.error('Error al obtener productos:', error);
       }
@@ -85,54 +110,44 @@ export default function ProductPage() {
   }, [categoriaNombre]);
 
   const handleCantidadChange = (id, value) => {
-    setCantidades(prev => ({
-      ...prev,
-      [id]: Math.max(1, parseInt(value) || 1),
-    }));
+    setCantidades(prev => ({ ...prev, [id]: Math.max(1, parseInt(value) || 1) }));
   };
 
   const handleAddToCart = (producto) => {
     const cantidad = cantidades[producto.id] || 1;
     añadirProducto(producto, cantidad);
+    setClickedId(producto.id);
+    setTimeout(() => setClickedId(null), 300); 
   };
 
   const productosFiltrados = productos.filter(producto => {
-    const cumpleBusqueda = buscar
-      ? (producto.nombre?.toLowerCase().includes(buscar) ||
-         producto.marca?.toLowerCase().includes(buscar) ||
-         producto.categoria?.toLowerCase().includes(buscar))
+    const matchBusqueda = terminoBusqueda
+      ? [producto.nombre, producto.marca, producto.categoria]
+        .some(val => val?.toLowerCase().includes(terminoBusqueda))
       : true;
-
-    const cumplePrecio = precioMaximo ? producto.precio <= Number(precioMaximo) : true;
-    const cumpleMarca = marcaSeleccionada ? producto.marca === marcaSeleccionada : true;
-
-    return cumpleBusqueda && cumplePrecio && cumpleMarca;
+    const matchMarca = marcaSeleccionada ? producto.marca === marcaSeleccionada : true;
+    return matchBusqueda && matchMarca;
   });
 
   const marcasUnicas = [...new Set(productos.map(p => p.marca))];
 
+  const getImagen = (nombre) => {
+    return imagenes[nombre] || '/default-image.png';
+  };
+
+
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-semibold mb-10 capitalize border-b pb-2 border-gray-200">
+      <h1 className="text-3xl font-semibold mb-6 capitalize text-gray-900">
         {titulo}
       </h1>
 
-      <div className="flex flex-wrap gap-4 mb-10">
-        <select
-          value={precioMaximo}
-          onChange={e => setPrecioMaximo(e.target.value)}
-          className="border border-gray-300 px-4 py-2 rounded-md text-sm bg-white shadow-sm"
-        >
-          <option value="">Filtrar por precio máximo</option>
-          <option value="20">Hasta 20€</option>
-          <option value="30">Hasta 30€</option>
-          <option value="40">Hasta 40€</option>
-        </select>
-
+      <div className="mb-8">
         <select
           value={marcaSeleccionada}
           onChange={e => setMarcaSeleccionada(e.target.value)}
-          className="border border-gray-300 px-4 py-2 rounded-md text-sm bg-white shadow-sm"
+          className="border border-gray-300 px-3 py-2 rounded-md text-sm bg-white shadow-sm focus:outline-none"
         >
           <option value="">Filtrar por marca</option>
           {marcasUnicas.map((marca, index) => (
@@ -144,42 +159,46 @@ export default function ProductPage() {
       {productosFiltrados.length === 0 ? (
         <p className="text-center text-gray-500">No se encontraron productos que coincidan.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
           {productosFiltrados.map(producto => (
             <div
               key={producto.id}
-              className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between"
+              className="border border-gray-200 rounded-xl p-4 flex flex-col justify-between hover:shadow-md transition"
             >
-              <div className="flex flex-col gap-2">
-                <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-4 overflow-hidden">
+              <div>
+                <div className="aspect-square bg-white mb-4 flex items-center justify-center">
                   <img
-                    src={imagenes[producto.nombre] || '/default-image.png'}
+                    src={getImagen(producto.nombre)}
                     alt={producto.nombre}
-                    className="w-full h-full object-contain"
+                    className="object-contain h-36"
                   />
-                </div>
-                <h3 className="text-base font-semibold text-gray-900">{producto.nombre}</h3>
-                <p className="text-sm text-gray-500">{producto.marca}</p>
-                <p className="text-lg font-bold text-black">{producto.precio} €</p>
 
-                <div className="mt-3">
-                  <label className="text-sm text-gray-600 block mb-1">Cantidad</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={cantidades[producto.id] || 1}
-                    onChange={e => handleCantidadChange(producto.id, e.target.value)}
-                    className="w-full border border-gray-300 px-3 py-1 rounded-md shadow-sm"
-                  />
                 </div>
+                <h3 className="text-sm font-semibold text-gray-900 leading-tight line-clamp-2">
+                  {producto.nombre}
+                </h3>
+                <p className="text-xs text-gray-500 mb-1">{producto.marca}</p>
+                <p className="text-sm font-bold text-black">{producto.precio} €</p>
               </div>
 
-              <button
-                onClick={() => handleAddToCart(producto)}
-                className="mt-4 bg-black text-white py-2 rounded-md font-medium hover:bg-gray-900 transition text-sm"
-              >
-                Añadir al carrito
-              </button>
+              <div className="flex items-center justify-between mt-3">
+                <input
+                  type="number"
+                  min="1"
+                  value={cantidades[producto.id] || 1}
+                  onChange={e => handleCantidadChange(producto.id, e.target.value)}
+                  className="w-16 border border-gray-300 text-sm rounded px-2 py-1"
+                />
+
+                <button
+                  onClick={() => handleAddToCart(producto)}
+                  className={`bg-black text-white p-2 rounded-full flex items-center justify-center transition transform duration-300 ${clickedId === producto.id ? 'animate-cart-pulse' : ''
+                    }`}
+                  aria-label="Añadir al carrito"
+                >
+                  <ShoppingCart size={16} />
+                </button>
+              </div>
             </div>
           ))}
         </div>

@@ -2,10 +2,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  base: '/suplemax-project/dist/', 
   plugins: [react()],
- server: {
-  proxy: {
-    '/api': 'http://localhost:3000', // Cambia al puerto real del backend
-  },
-},
 });

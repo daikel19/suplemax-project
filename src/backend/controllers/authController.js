@@ -1,4 +1,4 @@
-import db from '../db.js';
+import { getConnection } from '../db.js';
 import bcrypt from 'bcrypt';
 
 export const registerUser = async (req, res) => {
@@ -10,6 +10,7 @@ export const registerUser = async (req, res) => {
   }
 
   try {
+     const db = await getConnection();
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await db.execute(
       'INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)',
@@ -37,9 +38,11 @@ export const registerUser = async (req, res) => {
 };
 
 export const loginUser = async (req, res) => {
+   
   const { email, password } = req.body;
 
   try {
+    const db = await getConnection();
     const [rows] = await db.execute("SELECT * FROM usuarios WHERE email = ?", [email]);
 
     if (rows.length === 0) {
@@ -48,7 +51,7 @@ export const loginUser = async (req, res) => {
 
     const usuario = rows[0];
 
-    const isPasswordCorrect = await bcrypt.compare(password, usuario.password); // <- importante
+    const isPasswordCorrect = await bcrypt.compare(password, usuario.password);
     if (!isPasswordCorrect) {
       return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
     }

@@ -1,8 +1,10 @@
 // controllers/categoriaController.js
-import db from '../db.js';
+import { getConnection } from '../db.js';
 
 export const getCategorias = async (req, res) => {
   try {
+    const db = await getConnection();
+
     const [categorias] = await db.execute("SELECT * FROM categorias");
     res.json(categorias);
   } catch (error) {

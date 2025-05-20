@@ -1,6 +1,7 @@
-import db from '../db.js';
+import { getConnection } from '../db.js';
 
 export const getOrdersByUser = async (id_usuario) => {
+  const db = await getConnection();
   const [orders] = await db.execute(
     'SELECT * FROM pedidos WHERE id_usuario = ? ORDER BY fecha DESC',
     [id_usuario]
@@ -9,6 +10,7 @@ export const getOrdersByUser = async (id_usuario) => {
 };
 
 export const getOrderDetails = async (id_pedido) => {
+  const db = await getConnection();
   const [details] = await db.execute(
     `SELECT d.*, p.nombre FROM pedido_detalles d
      JOIN productos p ON d.id_producto = p.id
@@ -19,6 +21,7 @@ export const getOrderDetails = async (id_pedido) => {
 };
 
 export const createOrder = async (id_usuario, carrito) => {
+  const db = await getConnection();
   const total = carrito.reduce((acc, item) => acc + item.precio_unitario * item.cantidad, 0);
 
   const [orderResult] = await db.execute(

@@ -15,18 +15,31 @@ export default function Navbar() {
   const { carrito } = useCart();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("usuario");
-    if (storedUser) {
-      try {
-        setUsuario(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Error al parsear usuario:", e);
+  const fetchSession = async () => {
+    try {
+      const res = await fetch("http://localhost/suplemax-project/php/get_session.php", {
+        credentials: "include"
+      });
+      const data = await res.json();
+      if (data?.session?.usuario_id) {
+        setUsuario({
+          id: data.session.usuario_id,
+          nombre: data.session.usuario_nombre,
+          email: data.session.usuario_email
+        });
+        localStorage.setItem("usuario", JSON.stringify(data.session));
+      } else {
+        setUsuario(null);
+        localStorage.removeItem("usuario");
       }
+    } catch (e) {
+      console.error("Error al obtener sesión:", e);
     }
+  };
 
-    const guardados = JSON.parse(localStorage.getItem("busquedas")) || [];
-    setRecientes(guardados);
-  }, []);
+  fetchSession(); 
+}, []);
+
 
   const guardarBusqueda = (termino) => {
     if (!termino.trim()) return;
@@ -65,6 +78,20 @@ export default function Navbar() {
     document.addEventListener("mousedown", clickOutside);
     return () => document.removeEventListener("mousedown", clickOutside);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost/suplemax-project/php/logout.php", {
+        method: "POST",
+        credentials: "include"
+      });
+      localStorage.removeItem("usuario");
+      setUsuario(null);
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
 
   return (
     <header className="w-full bg-white text-black shadow-sm z-50 relative">
@@ -145,10 +172,7 @@ export default function Navbar() {
                   <div className="px-4 py-2 border-b text-sm text-gray-700">{usuario.email}</div>
                   <Link to="/perfil" className="block py-1 hover:underline">Perfil</Link>
                   <Link to="/configuracion" className="block py-1 hover:underline">Configuración</Link>
-                  <button onClick={() => {
-                    localStorage.removeItem("usuario");
-                    window.location.href = "/";
-                  }} className="text-red-600 mt-2">Cerrar sesión</button>
+                  <button onClick={handleLogout} className="text-red-600 mt-2">Cerrar sesión</button>
                 </div>
               )}
             </div>
