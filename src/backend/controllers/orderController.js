@@ -23,7 +23,7 @@ export const addOrder = async (req, res) => {
   }
 
   try {
-    const id_pedido = await createOrder(id_usuario, carrito); // función en orderModel.js
+    const id_pedido = await createOrder(id_usuario, carrito);
     res.json({ success: true, id_pedido });
   } catch (error) {
     console.error("Error al crear pedido:", error);

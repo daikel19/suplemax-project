@@ -1,21 +1,24 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Origin: http://localhost");
 header("Access-Control-Allow-Credentials: true");
-header("Content-Type: application/json");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 
-$data = json_decode(file_get_contents("php://input"), true);
-
-if (!$data) {
-  echo json_encode(["success" => false, "message" => "Datos inválidos"]);
-  exit;
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
 }
 
-// Cookies válidas 7 días
-$expira = time() + (86400 * 7);
+session_start();
 
-setcookie("usuario_id", $data["usuario_id"], $expira, "/", "", false, true);
-setcookie("usuario_nombre", $data["usuario_nombre"], $expira, "/", "", false, true);
-setcookie("usuario_email", $data["usuario_email"], $expira, "/", "", false, true);
+$input = json_decode(file_get_contents("php://input"), true);
 
-echo json_encode(["success" => true]);
+if ($input) {
+    $_SESSION['usuario_id'] = $input['usuario_id'];
+    $_SESSION['usuario_nombre'] = $input['usuario_nombre'];
+    $_SESSION['usuario_email'] = $input['usuario_email'];
+    echo json_encode(["success" => true]);
+} else {
+    echo json_encode(["success" => false, "message" => "Datos inválidos"]);
+}
 ?>

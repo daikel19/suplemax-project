@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { LogIn } from "lucide-react";
+import { useUsuario } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-
+  const { loginUsuario } = useUsuario();
+  const navigate = useNavigate();
+  
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -21,15 +25,20 @@ export default function LoginForm() {
       });
 
       const data = await response.json();
-      if (data.success) {
-        // Guardar en localStorage
-        localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-        // Establecer cookies desde PHP
-        await fetch("http://localhost/suplemax-project/php/set_session.php", {
+      if (data.success) {
+        // ✅ Guardar usuario en contexto
+        loginUsuario({
+          id: data.usuario.id,
+          nombre: data.usuario.nombre,
+          email: data.usuario.email
+        });
+
+        // Enviar sesión a PHP
+        const setSessionResponse = await fetch("http://localhost/suplemax-project/php/set_session.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include", // importante para que se mantengan
+          credentials: "include",
           body: JSON.stringify({
             usuario_id: data.usuario.id,
             usuario_nombre: data.usuario.nombre,
@@ -37,10 +46,15 @@ export default function LoginForm() {
           }),
         });
 
-        // Dar un pequeño delay para asegurar que la cookie se establezca
-        setTimeout(() => {
-          window.location.href = "/suplemax-project/dist/";
-        }, 300);
+        const sessionResult = await setSessionResponse.json();
+
+        if (sessionResult.success) {
+          navigate("/"); 
+        } else {
+          console.error(" No se pudo establecer la sesión PHP");
+          alert("Error al iniciar sesión en PHP");
+        }
+
       } else {
         alert(data.message || "Error en el login");
       }

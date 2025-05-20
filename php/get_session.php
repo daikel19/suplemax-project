@@ -1,20 +1,25 @@
 <?php
-session_start();
-header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Origin: http://localhost");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-echo json_encode([
-  "success" => true,
-  "session" => [
-    "usuario_id" => $_SESSION["usuario_id"] ?? null,
-    "usuario_nombre" => $_SESSION["usuario_nombre"] ?? null,
-    "usuario_email" => $_SESSION["usuario_email"] ?? null,
-  ]
-]);
+session_start();
+
+if (isset($_SESSION['usuario_id'])) {
+    echo json_encode([
+        "session" => [
+            "usuario_id" => $_SESSION['usuario_id'],
+            "usuario_nombre" => $_SESSION['usuario_nombre'],
+            "usuario_email" => $_SESSION['usuario_email']
+        ]
+    ]);
+} else {
+    echo json_encode(["session" => null]);
+}
+?>

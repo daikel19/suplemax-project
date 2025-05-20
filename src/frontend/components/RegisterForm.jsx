@@ -30,17 +30,20 @@ export default function RegisterForm() {
       if (data.success) {
         localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-        // ✅ Enviar también a PHP para guardar cookies
+
         await fetch("http://localhost/suplemax-project/php/set_session.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({
             usuario_id: data.usuario.id,
             usuario_nombre: data.usuario.nombre,
-            usuario_email: data.usuario.email,
-          }),
+            usuario_email: data.usuario.email
+          })
         });
+
 
         window.location.href = "/";
       } else {

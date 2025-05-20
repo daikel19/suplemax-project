@@ -11,12 +11,13 @@ import CartPage from './pages/CartPage';
 import OrderConfirmation from './pages/OrderConfirmation';
 import Suplebot from "./components/Suplebot";
 import "./index.css";
-
+import { UserProvider } from './context/UserContext';
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+    <UserProvider>
     <CartProvider>
       <BrowserRouter basename="/suplemax-project/dist/">
         <Navbar />
@@ -33,5 +34,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Suplebot />
       </BrowserRouter>
     </CartProvider>
+    </UserProvider>
   </React.StrictMode>
 );

@@ -1,58 +1,37 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Search, X } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingCart, User, Search, X } from "lucide-react";
+import { useCart } from "../context/CartContext";
+import { useUsuario } from "../context/UserContext";
 
 export default function Navbar() {
-  const [usuario, setUsuario] = useState(null);
+  const { usuario, logoutUsuario, cargando } = useUsuario();
+  const { carrito } = useCart();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [busquedaAbierta, setBusquedaAbierta] = useState(false);
-  const [busqueda, setBusqueda] = useState('');
+  const [busqueda, setBusqueda] = useState("");
   const [recientes, setRecientes] = useState([]);
-  const menuRef = useRef(null);
   const searchRef = useRef(null);
+  const menuRef = useRef(null);
   const navigate = useNavigate();
-  const { carrito } = useCart();
 
-  useEffect(() => {
-  const fetchSession = async () => {
-    try {
-      const res = await fetch("http://localhost/suplemax-project/php/get_session.php", {
-        credentials: "include"
-      });
-      const data = await res.json();
-      if (data?.session?.usuario_id) {
-        setUsuario({
-          id: data.session.usuario_id,
-          nombre: data.session.usuario_nombre,
-          email: data.session.usuario_email
-        });
-        localStorage.setItem("usuario", JSON.stringify(data.session));
-      } else {
-        setUsuario(null);
-        localStorage.removeItem("usuario");
-      }
-    } catch (e) {
-      console.error("Error al obtener sesión:", e);
-    }
-  };
+    if (cargando) return null;
 
-  fetchSession(); 
-}, []);
+  const totalCantidad = carrito.reduce((acc, p) => acc + p.cantidad, 0);
 
-
+  // Manejo búsqueda reciente
   const guardarBusqueda = (termino) => {
     if (!termino.trim()) return;
-    let prev = JSON.parse(localStorage.getItem("busquedas")) || [];
-    const sinDuplicados = [termino, ...prev.filter(b => b !== termino)].slice(0, 5);
-    localStorage.setItem("busquedas", JSON.stringify(sinDuplicados));
-    setRecientes(sinDuplicados);
+    const prev = JSON.parse(localStorage.getItem("busquedas")) || [];
+    const nuevas = [termino, ...prev.filter((b) => b !== termino)].slice(0, 5);
+    localStorage.setItem("busquedas", JSON.stringify(nuevas));
+    setRecientes(nuevas);
   };
 
   const eliminarBusqueda = (termino) => {
-    const filtradas = recientes.filter(b => b !== termino);
-    localStorage.setItem("busquedas", JSON.stringify(filtradas));
-    setRecientes(filtradas);
+    const nuevas = recientes.filter((b) => b !== termino);
+    localStorage.setItem("busquedas", JSON.stringify(nuevas));
+    setRecientes(nuevas);
   };
 
   const handleBuscar = (e) => {
@@ -60,12 +39,11 @@ export default function Navbar() {
     if (!busqueda.trim()) return;
     guardarBusqueda(busqueda);
     navigate(`/productos?buscar=${encodeURIComponent(busqueda)}`);
-    setBusqueda('');
+    setBusqueda("");
     setBusquedaAbierta(false);
   };
 
-  const totalCantidad = carrito.reduce((sum, p) => sum + p.cantidad, 0);
-
+  // Manejo clic fuera de menús
   useEffect(() => {
     const clickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -83,13 +61,12 @@ export default function Navbar() {
     try {
       await fetch("http://localhost/suplemax-project/php/logout.php", {
         method: "POST",
-        credentials: "include"
+        credentials: "include",
       });
-      localStorage.removeItem("usuario");
-      setUsuario(null);
-      window.location.href = "/";
+      logoutUsuario();
+      navigate("/");
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      console.error("❌ Error al cerrar sesión:", error);
     }
   };
 
@@ -118,7 +95,7 @@ export default function Navbar() {
                   <input
                     type="text"
                     value={busqueda}
-                    onChange={e => setBusqueda(e.target.value)}
+                    onChange={(e) => setBusqueda(e.target.value)}
                     placeholder="Buscar proteínas, alimentos..."
                     className="flex-grow px-3 py-2 border border-gray-300 rounded text-sm"
                   />
@@ -126,7 +103,6 @@ export default function Navbar() {
                     Ir
                   </button>
                 </form>
-
                 {recientes.length > 0 && (
                   <div className="text-sm">
                     <p className="text-gray-500 mb-2 font-medium">Búsquedas recientes</p>
@@ -149,6 +125,7 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* Carrito */}
           <Link to="/carrito" className="relative">
             <ShoppingCart className="w-5 h-5" />
             {totalCantidad > 0 && (
@@ -158,6 +135,7 @@ export default function Navbar() {
             )}
           </Link>
 
+          {/* Usuario */}
           {usuario ? (
             <div className="relative" ref={menuRef}>
               <button
@@ -172,7 +150,7 @@ export default function Navbar() {
                   <div className="px-4 py-2 border-b text-sm text-gray-700">{usuario.email}</div>
                   <Link to="/perfil" className="block py-1 hover:underline">Perfil</Link>
                   <Link to="/configuracion" className="block py-1 hover:underline">Configuración</Link>
-                  <button onClick={handleLogout} className="text-red-600 mt-2">Cerrar sesión</button>
+                  <button type="button" onClick={handleLogout} className="text-red-600 mt-2">Cerrar sesión</button>
                 </div>
               )}
             </div>
