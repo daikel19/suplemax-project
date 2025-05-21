@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { UserPlus, Loader2 } from "lucide-react";
+import { useUsuario } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -7,54 +9,60 @@ export default function RegisterForm() {
     email: "",
     password: "",
   });
+
+  const navigate = useNavigate();
   const [cargando, setCargando] = useState(false);
+  const { loginUsuario } = useUsuario(); 
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setCargando(true);
+  e.preventDefault();
+  setCargando(true);
 
-    try {
-      const response = await fetch("http://localhost:3000/api/register", {
+  try {
+    const response = await fetch("http://localhost:3000/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+      loginUsuario(data.usuario);
+
+      await fetch("http://localhost/suplemax-project/php/set_session.php", {
         method: "POST",
+        credentials: "include",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          usuario_id: data.usuario.id,
+          usuario_nombre: data.usuario.nombre,
+          usuario_email: data.usuario.email
+        })
       });
 
-      const data = await response.json();
-      if (data.success) {
-        localStorage.setItem("usuario", JSON.stringify(data.usuario));
-
-
-        await fetch("http://localhost/suplemax-project/php/set_session.php", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            usuario_id: data.usuario.id,
-            usuario_nombre: data.usuario.nombre,
-            usuario_email: data.usuario.email
-          })
-        });
-
-
-        window.location.href = "/";
-      } else {
-        alert(data.message || "Error en el registro");
-      }
-    } catch (error) {
-      console.error("Error al registrar:", error);
-    } finally {
-      setCargando(false);
+      // ✅ Redirige directamente sin esperar confirmación
+      navigate("/");
+    } else {
+      alert(data.message || "Error en el registro");
     }
-  };
+  } catch (error) {
+    console.error("Error al registrar:", error);
+    alert("Ocurrió un error inesperado.");
+  } finally {
+    setCargando(false);
+  }
+}
+
 
   return (
     <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-lg p-8 animate-fade-in">

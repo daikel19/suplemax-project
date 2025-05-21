@@ -3,7 +3,7 @@ import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function CartPage() {
-  const { carrito, eliminarProducto, añadirProducto, clearCart  } = useCart();
+  const { carrito, eliminarProducto, añadirProducto, clearCart } = useCart();
   const navigate = useNavigate();
 
   const handleFinalizarCompra = async () => {
@@ -14,7 +14,7 @@ export default function CartPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/api/pedidos",  {
+      const res = await fetch("http://localhost:3000/api/pedidos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -39,6 +39,11 @@ export default function CartPage() {
         state: {
           pedidoId: data.id_pedido,
           total: total,
+          productos: carrito.map(p => ({
+            nombre: p.nombre,
+            cantidad: p.cantidad,
+            precio_unitario: parseFloat(p.precio)
+          }))
         },
       });
     } catch (err) {

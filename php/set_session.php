@@ -13,14 +13,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 
 ini_set('session.cookie_samesite', 'Lax');
-ini_set('session.cookie_secure', 'false');
+ini_set('session.cookie_secure', '0');
 
 $input = json_decode(file_get_contents("php://input"), true);
 
-if ($input) {
+if (is_array($input) && isset($input['usuario_id'], $input['usuario_nombre'], $input['usuario_email'])) {
     $_SESSION['usuario_id'] = $input['usuario_id'];
     $_SESSION['usuario_nombre'] = $input['usuario_nombre'];
     $_SESSION['usuario_email'] = $input['usuario_email'];
+
     echo json_encode(["success" => true]);
 } else {
     echo json_encode(["success" => false, "message" => "Datos inválidos"]);

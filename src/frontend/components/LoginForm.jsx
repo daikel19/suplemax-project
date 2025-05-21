@@ -9,7 +9,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const { loginUsuario } = useUsuario();
   const navigate = useNavigate();
-  
+
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -35,25 +35,23 @@ export default function LoginForm() {
         });
 
         // Enviar sesión a PHP
-        const setSessionResponse = await fetch("http://localhost/suplemax-project/php/set_session.php", {
+        await fetch("http://localhost/suplemax-project/php/set_session.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({
             usuario_id: data.usuario.id,
             usuario_nombre: data.usuario.nombre,
-            usuario_email: data.usuario.email,
-          }),
+            usuario_email: data.usuario.email
+          })
         });
 
-        const sessionResult = await setSessionResponse.json();
+        // ✅ Redirige directamente
+        navigate("/");
 
-        if (sessionResult.success) {
-          navigate("/"); 
-        } else {
-          console.error(" No se pudo establecer la sesión PHP");
-          alert("Error al iniciar sesión en PHP");
-        }
+
 
       } else {
         alert(data.message || "Error en el login");

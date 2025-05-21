@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 
 export const registerUser = async (req, res) => {
   const { nombre, email, password } = req.body;
-  console.log("📥 Datos recibidos en register:", { nombre, email, password });
+  console.log(" Datos recibidos de registro:", { nombre, email, password });
 
   if (!nombre || !email || !password) {
     return res.status(400).json({ success: false, message: 'Faltan datos' });

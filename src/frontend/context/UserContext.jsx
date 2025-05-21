@@ -20,7 +20,7 @@ export function UserProvider({ children }) {
         })
             .then(res => res.json())
             .then(data => {
-                console.log("d atos recuperados de get_session:", data);
+                console.log("datos recuperados de get_session:", data);
                 if (data?.session?.usuario_id) {
                     const sessionData = {
                         id: data.session.usuario_id,
